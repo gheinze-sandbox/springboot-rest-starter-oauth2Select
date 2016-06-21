@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+        <title>ASI Configuration Management</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+        <script src="js/configMgmt.js"></script>
+
+        <style>
+            .hidden {
+               display: none
+            }
+        </style>
+
+    </head>
+
+
+    <body>
+
+        <div>
+            <h1>ASI Configuration Management</h1>
+        </div>
+
+        <div id = "loginDivId" class = "nonAuthenticatedState">
+                <h3>Sign in with:</h3>
+                <span>
+                    <a href="/login/google"><img src = "/img/google_32.png" alt = "Login with Google"/></a>
+                    <a href="/login/facebook"><img src = "/img/facebook_32.png" alt = "Login with Facebook"/></a>
+                    <a href="/login/github"><img src = "/img/github_32.png" alt = "Login with GitHub"/></a>
+                </span>
+        </div>
+
+
+        <div id = "userDivId" class = "hidden authenticatedState">
+
+            <p><b>Logged in as:</b> <i><span id="userNameId"></span></i></p>
+
+            <div>
+                <button onClick="appModel.logout()">Logout</button>
+            </div>
+
+            <div>
+                <h2>EBlox Upload</h2>
+                <input id = "fileInputId" type="file" name="file" />
+                <button onClick="appModel.uploadEbloxFile()">Upload</button>
+                <div id = "uploadMessageDivId" class = "hidden">
+                    <p><i><span id="uploadMessageId"></span></i> uploaded.</p>
+                </div>
+                <div>
+                    <ul id = "uploadedListId">
+
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+    </body>
+
+
+</html>

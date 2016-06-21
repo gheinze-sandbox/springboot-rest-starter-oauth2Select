@@ -1,11 +1,11 @@
 package bike.asi.configmgmt.controller;
 
-import com.google.api.client.http.FileContent;
+import com.google.api.client.http.InputStreamContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.ParentReference;
 import com.google.common.collect.Lists;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,18 +26,16 @@ public class EbloxUploadController {
     @Autowired Drive googleDrive;
 
     @RequestMapping(method = RequestMethod.POST)
-    public StatusMessage handleFileUpload(@RequestParam("file") MultipartFile file) {
+    public StatusMessage handleFileUpload(@RequestParam("file") MultipartFile multipartFile) throws IOException {
 
-        if (file.isEmpty()) {
+        if (multipartFile.isEmpty()) {
             return new StatusMessage(false, "Upload failed => the file was empty");
         }
 
         String googleDriveFileId;
-        File destFile = new File("/tmp/eblox/" + file.getOriginalFilename());
 
         try {
-            file.transferTo(destFile);
-            googleDriveFileId = uploadTextFile(destFile, file.getOriginalFilename());
+            googleDriveFileId = uploadTextFile(multipartFile);
         } catch (IOException | IllegalStateException ex) {
             return new StatusMessage(false, "Upload failed => " + ex.getMessage());
         }
@@ -49,18 +47,27 @@ public class EbloxUploadController {
 
     private static final List<ParentReference> PARENT_REFERENCES = Lists.newArrayList(
             new ParentReference().setId("0B4RyV1qO0-W6NUtiejAyUGhCSWc"), // ASI
-            new ParentReference().setId("0B4RyV1qO0-W6aUhOR2dCc1o0b2c")  // eblox
+            new ParentReference().setId("0B4RyV1qO0-W6aUhOR2dCc1o0b2c") // eblox
     );
 
-	private String uploadTextFile(File localFile, String title) throws IOException{
-		com.google.api.services.drive.model.File body = new com.google.api.services.drive.model.File();
-		body.setTitle(title);
-                body.setParents(PARENT_REFERENCES);
-		body.setDescription("A test document");
-		body.setMimeType("text/plain");
-		FileContent mediaContent = new FileContent("text/plain", localFile);
-		com.google.api.services.drive.model.File googleDriveFile = googleDrive.files().insert(body, mediaContent).execute();
-		return googleDriveFile.getId();
-	}
+
+    private String uploadTextFile(MultipartFile multipartFile) throws IOException {
+
+        com.google.api.services.drive.model.File body = new com.google.api.services.drive.model.File();
+        body.setTitle(multipartFile.getOriginalFilename());
+        body.setParents(PARENT_REFERENCES);
+        body.setDescription("EBlox configuration loaded via ASI Configuration Management");
+        body.setMimeType(multipartFile.getContentType());
+
+        com.google.api.services.drive.model.File googleDriveFile;
+
+        try (InputStream uploadFileStream = multipartFile.getInputStream()) {
+            InputStreamContent mediaContent = new InputStreamContent("text/plain", uploadFileStream);
+            googleDriveFile = googleDrive.files().insert(body, mediaContent).execute();
+        }
+
+        return googleDriveFile.getId();
+
+    }
 
 }

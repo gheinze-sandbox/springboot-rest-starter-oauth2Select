@@ -34,3 +34,7 @@ oauth2:
 logging:
   level:
     org.springframework.security: DEBUG
+
+google:
+  drive:
+    callBackPort: 33421

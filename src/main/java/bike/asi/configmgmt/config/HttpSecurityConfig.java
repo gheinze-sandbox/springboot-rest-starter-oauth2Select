@@ -24,6 +24,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
@@ -62,6 +63,9 @@ public class HttpSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     @Autowired private OAuth2ClientContext oauth2ClientContext;
+
+    @Value("${google.drive.callBackPort}") private int googleDriveCallbackPort;
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -217,7 +221,12 @@ public class HttpSecurityConfig extends WebSecurityConfigurerAdapter {
                 .build()
                 ;
 
-        Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+        LocalServerReceiver localServerReceiver = new LocalServerReceiver.Builder()
+                .setPort(googleDriveCallbackPort)
+                .build()
+                ;
+
+        Credential credential = new AuthorizationCodeInstalledApp(flow, localServerReceiver).authorize("102687441626965982711"); // client id for user?
 
         return new Drive.Builder(httpTransport, jsonFactory, credential)
                 .setApplicationName("ASI Configuration Management")

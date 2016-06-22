@@ -1,20 +1,7 @@
 package bike.asi.configmgmt.config;
 
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
-import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.store.FileDataStoreFactory;
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.DriveScopes;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -24,7 +11,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
@@ -64,7 +50,6 @@ public class HttpSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired private OAuth2ClientContext oauth2ClientContext;
 
-    @Value("${google.drive.callBackPort}") private int googleDriveCallbackPort;
 
 
     @Override
@@ -87,8 +72,8 @@ public class HttpSecurityConfig extends WebSecurityConfigurerAdapter {
 
     class ClientResources {
 
-        private OAuth2ProtectedResourceDetails client = new AuthorizationCodeResourceDetails();
-        private ResourceServerProperties resource = new ResourceServerProperties();
+        private final OAuth2ProtectedResourceDetails client = new AuthorizationCodeResourceDetails();
+        private final ResourceServerProperties resource = new ResourceServerProperties();
 
         public OAuth2ProtectedResourceDetails getClient() {
             return client;
@@ -199,39 +184,6 @@ public class HttpSecurityConfig extends WebSecurityConfigurerAdapter {
         protected void beforeSpringSecurityFilterChain(ServletContext servletContext) {
             insertFilters(servletContext, new MultipartFilter());
         }
-    }
-
-
-    @Bean
-    public Drive googleDrive() throws GeneralSecurityException, IOException {
-
-        HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-        JsonFactory jsonFactory = new JacksonFactory();
-
-        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-                httpTransport,
-                jsonFactory,
-                google().getClient().getClientId(),
-                google().getClient().getClientSecret(),
-                Collections.singleton(DriveScopes.DRIVE_FILE)
-        )
-                .setAccessType("online")
-                .setApprovalPrompt("auto")
-                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(System.getProperty("user.home"), ".store/drive_sample")))
-                .build()
-                ;
-
-        LocalServerReceiver localServerReceiver = new LocalServerReceiver.Builder()
-                .setPort(googleDriveCallbackPort)
-                .build()
-                ;
-
-        Credential credential = new AuthorizationCodeInstalledApp(flow, localServerReceiver).authorize("102687441626965982711"); // client id for user?
-
-        return new Drive.Builder(httpTransport, jsonFactory, credential)
-                .setApplicationName("ASI Configuration Management")
-                .build();
-
     }
 
 

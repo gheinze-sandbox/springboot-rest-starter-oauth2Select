@@ -8,12 +8,14 @@ The starter expects two environment variables in order to function (externalizin
 
 OAuth2 properties `clientId` and `clientSecrect` can be passed in from the environment as a json object:
 
-   SPRING_APPLICATION_JSON={"security.oauth2.client.clientId": "<my client id>", "security.oauth2.client.clientSecret": "<my secret>"}
+  SPRING_APPLICATION_JSON={ "oauth2.google.client.clientId": "myClientId for application authentication", "oauth2.google.client.clientSecret": "myClientSecret for application authentication", "google.drive.clientId": "myClientId for google drive", "google.drive.clientSecret": "myClientSecret for google drive" }
 
-Or, in development, can simply be added to `application.properties`:
+Or, in development, can simply be added to `application.properties` (or `application.yml`):
 
   security.oauth2.client.clientId=
   security.oauth2.client.clientSecret=
+  google.drive.clientId=
+  google.drive.clientSecret=
 
 The starter is configured for using a Google OAuth2 provider. It hardcodes in test clientId and clientSecrets for a localhost origin for Facebook and GitHub providers.
 Google Drive access piggybacks on the Google credentials and expects folder "ASI/eblox" to exist.

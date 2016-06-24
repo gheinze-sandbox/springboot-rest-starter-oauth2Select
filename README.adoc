@@ -1,4 +1,4 @@
-= Spring Boot REST, JPA, OAuth2 Slector, Google Drive upload Starter
+= Spring Boot REST, JPA, OAuth2 Selector, Google Drive upload Starter
 
 This is a starter to serve as an example of building a REST application with OAuth2 authentication.
 
@@ -18,11 +18,13 @@ Or, in development, can simply be added to `application.properties` (or `applica
   google.drive.clientSecret=
 
 The starter is configured for using a Google OAuth2 provider. It hardcodes in test clientId and clientSecrets for a localhost origin for Facebook and GitHub providers.
-Google Drive access piggybacks on the Google credentials and expects folder "ASI/eblox" to exist.
+Google Drive access operate on a separate set of credentials and expects the folder "ASI/eblox" to exist.
 
 .DB Config
 
 The database config has also been externalized in order to conform to Heroku deployment expectations. Heroku expects the environment variable `DATABASE_URL` in the form of:
 
   DATABASE_URL=postgres://<username>:<password>@<host>/<dbname>
+
+The database is not actually used in this starter, just ready to go in the configuration.
 
